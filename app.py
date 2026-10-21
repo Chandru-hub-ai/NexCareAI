@@ -50,510 +50,123 @@ _init_db_once()
 st.session_state.setdefault("user_id", None)
 st.session_state.setdefault("lang", "English")
 
-# --------------------- PREMIUM CSS ----------------------
+# --------------------- FRESH TEAL HEALTH UI ----------------------
 
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    :root{--teal:#40E0D0;--teal-d:#1FB8A8;--teal-l:#E3FAF7;--bg:#F5F9FF;--ink:#0F3D3E;--muted:#9DB0BE;
+          --coral:#FF6F61;--blue:#2F80ED;--yellow:#F2B64B;--line:#E6EEF5;--shadow:0 14px 40px rgba(64,224,208,.14);}
+    html,body,[class*="css"]{font-family:'Poppins',sans-serif;}
+    .stApp{background:var(--bg);color:var(--ink);}
+    [data-testid="stHeader"]{background:transparent;}
+    #MainMenu,footer{visibility:hidden;}
+    h1,h2,h3,.brand,.section-title,.panel-title,.metric-value,.dose-time{font-family:'Poppins',sans-serif!important;color:var(--ink);letter-spacing:-.2px;}
+    .stMarkdown p,label,li{color:#3F5F66;}
 
-    :root {
-        --bg: #070B14;
-        --panel: #0D1424;
-        --panel2: #111B2E;
-        --line: #202D43;
-        --cyan: #38E8FF;
-        --purple: #A78BFA;
-        --green: #45E6A5;
-        --pink: #FB70C8;
-        --text: #F1F5FF;
-        --muted: #91A0BA;
-    }
+    /* sidebar */
+    [data-testid="stSidebar"]{background:#fff;border-right:none;box-shadow:8px 0 40px rgba(64,224,208,.08);}
+    .brand{font-size:1.35rem;font-weight:700;}
+    .brand span{color:var(--teal-d);}
+    .brand-mark{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;
+        margin-right:10px;color:#fff;font-size:1.2rem;background:var(--teal);box-shadow:0 8px 18px rgba(64,224,208,.4);vertical-align:middle;}
+    .eyebrow{color:var(--teal-d);text-transform:uppercase;letter-spacing:2px;font-size:.7rem;font-weight:600;margin-bottom:8px;}
+    .st-key-nav_radio label{padding:10px 14px;border-radius:14px;width:100%;margin-bottom:4px;transition:all .18s ease;}
+    .st-key-nav_radio label > div:first-child{display:none;}
+    .st-key-nav_radio label:hover{background:var(--teal-l);}
+    .st-key-nav_radio label:has(input:checked){background:var(--teal);box-shadow:0 8px 20px rgba(64,224,208,.35);}
+    .st-key-nav_radio label:has(input:checked) *{color:#fff!important;font-weight:600;}
 
-    html, body, [class*="css"] {
-        font-family: 'DM Sans', sans-serif;
-    }
+    /* teal hero banner (like the dashboard card) */
+    .hero{position:relative;overflow:hidden;padding:30px 34px;border-radius:30px;margin-bottom:24px;
+        background:linear-gradient(135deg,#40E0D0,#3CD3C3);box-shadow:var(--shadow);}
+    .hero::before{content:"";position:absolute;width:270px;height:270px;border-radius:50%;background:rgba(255,255,255,.16);right:-70px;top:-100px;}
+    .hero::after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;border:34px solid rgba(255,255,255,.14);right:100px;bottom:-115px;}
+    .hero > *{position:relative;z-index:1;}
+    .hero .eyebrow{color:rgba(255,255,255,.85);}
+    .hero h1{color:#fff!important;font-size:clamp(1.55rem,2.6vw,2.2rem);line-height:1.25;margin:4px 0 10px;font-weight:700;padding:0;}
+    .hero p{color:rgba(255,255,255,.93)!important;max-width:620px;font-size:.94rem;line-height:1.7;}
+    .hero-glow{color:#0B4F4A;}
 
-    .stApp {
-        background:
-            radial-gradient(ellipse at 5% 0%, rgba(35, 112, 180, .13), transparent 36%),
-            radial-gradient(ellipse at 95% 5%, rgba(126, 67, 206, .12), transparent 32%),
-            var(--bg);
-        color: var(--text);
-    }
+    /* cards */
+    .metric-card,.panel,[data-testid="stVerticalBlockBorderWrapper"],[data-testid="stForm"],[data-testid="stExpander"],[data-testid="stMetric"]{
+        background:#fff;border:none!important;border-radius:24px!important;box-shadow:var(--shadow);}
+    .metric-card,.panel{padding:20px 22px;margin-bottom:14px;}
+    [data-testid="stExpander"] details{border:none!important;}
+    [data-testid="stMetric"]{padding:16px 20px;}
+    [data-testid="stMetricValue"]{color:var(--ink);font-weight:700;}
+    [data-testid="stMetricLabel"] p{color:var(--muted)!important;}
+    .metric-card{min-height:140px;transition:transform .2s ease;}
+    .metric-card:hover{transform:translateY(-3px);}
+    .metric-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .metric-label{color:var(--muted);font-size:.82rem;font-weight:500;}
+    .metric-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-weight:700;
+        background:color-mix(in srgb,currentColor 14%,#fff);}
+    .metric-value{font-weight:700;font-size:2rem;margin-top:12px;line-height:1;}
+    .metric-note{color:var(--muted);font-size:.76rem;margin-top:10px;}
+    .section-title{font-size:1.15rem;font-weight:600;margin:20px 0 8px;}
+    .panel-title{font-weight:600;font-size:1rem;margin-bottom:6px;}
+    .panel-caption{color:var(--muted);font-size:.84rem;line-height:1.6;}
+    .status-pill{display:inline-block;border-radius:999px;padding:5px 12px;font-size:.73rem;font-weight:600;background:var(--teal-l);color:var(--teal-d);}
+    .divider{border:0;border-top:1px solid var(--line);margin:20px 0;}
+    .empty-state{text-align:center;padding:34px 20px;border:1.5px dashed #BFEFE9;border-radius:22px;background:#fff;}
+    .empty-icon{font-size:2rem;margin-bottom:8px;color:var(--teal-d);}
+    .empty-title{color:var(--ink);font-weight:600;}
+    .empty-text{color:var(--muted);font-size:.85rem;margin-top:6px;}
+    .footer{color:var(--muted);font-size:.74rem;text-align:center;padding:20px 0 8px;}
 
-    [data-testid="stHeader"] {
-        background: rgba(7, 11, 20, .88);
-    }
+    /* pill buttons */
+    .stButton>button,.stFormSubmitButton>button,.stDownloadButton>button{width:100%;min-height:44px;border-radius:999px;
+        border:1.5px solid var(--teal);background:#fff;color:var(--teal-d);font-weight:600;transition:all .18s ease;}
+    .stButton>button:hover,.stFormSubmitButton>button:hover,.stDownloadButton>button:hover{background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);transform:translateY(-1px);}
+    .stButton>button[kind="primary"],.stFormSubmitButton>button[kind="primary"]{background:var(--teal);color:#fff;border-color:transparent;box-shadow:0 8px 20px rgba(64,224,208,.38);}
+    .stButton>button[kind="primary"]:hover,.stFormSubmitButton>button[kind="primary"]:hover{background:var(--teal);color:#fff;filter:brightness(1.05);}
+    .stButton>button p,.stFormSubmitButton>button p,.stDownloadButton>button p{color:inherit!important;}
 
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0B1220 0%, #080D17 100%);
-        border-right: 1px solid #1C2A40;
-    }
+    /* inputs */
+    .stTextInput input,.stTextArea textarea,.stDateInput input,.stNumberInput input,.stSelectbox div[data-baseweb="select"]>div,[data-testid="stFileUploader"] section{
+        background:#fff!important;color:var(--ink)!important;border:1.5px solid var(--line)!important;border-radius:14px!important;}
+    .stTextInput input:focus,.stTextArea textarea:focus{border-color:var(--teal)!important;box-shadow:0 0 0 3px rgba(64,224,208,.2)!important;}
+    [data-testid="stAlert"]{border-radius:16px;}
 
-    [data-testid="stSidebar"] > div {
-        padding-top: 1.5rem;
-    }
+    /* pill tabs */
+    .stTabs [data-baseweb="tab-list"]{gap:6px;background:#fff;border-radius:999px;padding:5px;box-shadow:var(--shadow);width:fit-content;}
+    .stTabs [data-baseweb="tab"]{border-radius:999px;padding:8px 22px;height:auto;color:var(--muted);font-weight:600;}
+    .stTabs [data-baseweb="tab"] p{color:inherit!important;}
+    .stTabs [aria-selected="true"]{background:var(--teal);color:#fff!important;}
+    .stTabs [data-baseweb="tab-highlight"],.stTabs [data-baseweb="tab-border"]{display:none;}
 
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
-        color: #A9B7D0;
-    }
+    /* dose chips */
+    .chip{display:inline-block;border-radius:999px;padding:5px 12px;font-size:.74rem;font-weight:600;}
+    .chip-Taken{color:#0E9F8E;background:#DDF8F4;}
+    .chip-Missed{color:#E5483A;background:#FFE7E4;}
+    .chip-Skipped{color:#B8841C;background:#FFF2D6;}
+    .chip-Pending{color:var(--blue);background:#E4EEFF;}
+    .dose-time{font-weight:700;font-size:1.2rem;}
+    .dose-name{font-weight:600;font-size:1.03rem;color:var(--ink);}
+    .dose-meta{color:var(--muted);font-size:.88rem;}
 
-    h1, h2, h3 {
-        font-family: 'Space Grotesk', sans-serif !important;
-        letter-spacing: -0.7px;
-        color: #F4F7FF;
-    }
+    /* week strip (coral selected day) */
+    .week{display:flex;justify-content:space-between;gap:8px;margin-top:14px;}
+    .day{flex:1;text-align:center;padding:10px 0;border-radius:16px;color:var(--muted);font-size:.75rem;}
+    .day b{display:block;font-size:1rem;margin-top:4px;}
+    .day.on{background:var(--coral);color:#fff;box-shadow:0 8px 18px rgba(255,111,97,.35);}
+    /* ring gauge */
+    .ring{width:150px;height:150px;border-radius:50%;margin:6px auto;display:flex;align-items:center;justify-content:center;
+        background:conic-gradient(var(--teal) calc(var(--p)*1%),#E3FAF7 0);}
+    .ring-in{width:114px;height:114px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .ring-in b{font-size:1.7rem;color:var(--ink);line-height:1;}
+    .ring-in span{font-size:.72rem;color:var(--muted);margin-top:4px;}
+    /* thin progress bars */
+    .bar-row{display:flex;align-items:center;gap:12px;margin:14px 0;}
+    .bar-label{width:70px;color:var(--muted);font-size:.8rem;}
+    .bar-track{flex:1;height:6px;border-radius:99px;background:#EEF3F7;overflow:hidden;}
+    .bar-fill{height:100%;border-radius:99px;}
+    .bar-val{width:34px;text-align:right;font-weight:600;color:var(--ink);font-size:.85rem;}
 
-    h1 {
-        font-weight: 700 !important;
-    }
-
-    p, label, li {
-        color: #B8C4D9;
-    }
-
-    .brand {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.45rem;
-        font-weight: 700;
-        letter-spacing: -0.8px;
-        color: #F4F7FF;
-    }
-
-    .brand span {
-        color: var(--cyan);
-    }
-
-    .brand-mark {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 43px;
-        height: 43px;
-        border-radius: 14px;
-        margin-right: 10px;
-        color: #06111D;
-        font-size: 1.35rem;
-        font-weight: 900;
-        background: linear-gradient(135deg, #38E8FF, #A78BFA);
-        box-shadow: 0 0 25px rgba(56, 232, 255, .2);
-        vertical-align: middle;
-    }
-
-    .eyebrow {
-        color: var(--cyan);
-        text-transform: uppercase;
-        letter-spacing: 2.3px;
-        font-size: .72rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
-
-    .hero {
-        position: relative;
-        overflow: hidden;
-        padding: 30px 32px;
-        border: 1px solid #263750;
-        border-radius: 24px;
-        background:
-            radial-gradient(ellipse at 85% 10%, rgba(56,232,255,.13), transparent 32%),
-            radial-gradient(ellipse at 70% 100%, rgba(167,139,250,.16), transparent 40%),
-            linear-gradient(120deg, #111A2C, #0D1423 75%);
-        margin-bottom: 25px;
-        box-shadow: 0 18px 60px rgba(0,0,0,.16);
-    }
-
-    .hero h1 {
-        font-size: clamp(1.8rem, 3vw, 2.7rem);
-        line-height: 1.12;
-        margin: 8px 0 12px;
-    }
-
-    .hero p {
-        max-width: 650px;
-        font-size: .98rem;
-        line-height: 1.7;
-        color: #A9B9D1;
-    }
-
-    .hero-glow {
-        color: var(--cyan);
-        text-shadow: 0 0 25px rgba(56,232,255,.28);
-    }
-
-    .section-title {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.23rem;
-        font-weight: 700;
-        color: #F1F5FF;
-        margin: 18px 0 5px;
-    }
-
-    .section-subtitle {
-        color: #8FA0BA;
-        font-size: .88rem;
-        margin-bottom: 17px;
-    }
-
-    .metric-card {
-        min-height: 144px;
-        padding: 20px;
-        border-radius: 18px;
-        background: linear-gradient(145deg, #111B2D, #0C1321);
-        border: 1px solid #223149;
-        box-shadow: 0 10px 28px rgba(0,0,0,.12);
-        transition: border-color .2s ease, transform .2s ease;
-    }
-
-    .metric-card:hover {
-        border-color: #3A6680;
-        transform: translateY(-2px);
-    }
-
-    .metric-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .metric-label {
-        color: #A0AEC5;
-        font-size: .83rem;
-        font-weight: 600;
-    }
-
-    .metric-icon {
-        width: 34px;
-        height: 34px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 11px;
-        font-size: 1.05rem;
-        background: #16263A;
-    }
-
-    .metric-value {
-        color: #F3F7FF;
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700;
-        font-size: 2rem;
-        margin-top: 13px;
-        line-height: 1;
-    }
-
-    .metric-note {
-        color: #8799B4;
-        font-size: .76rem;
-        margin-top: 10px;
-    }
-
-    .panel {
-        background: linear-gradient(145deg, #10192A, #0B1220);
-        border: 1px solid #202F46;
-        border-radius: 19px;
-        padding: 22px;
-        margin-bottom: 14px;
-    }
-
-    .panel-title {
-        font-family: 'Space Grotesk', sans-serif;
-        color: #EEF3FF;
-        font-weight: 700;
-        font-size: 1.02rem;
-        margin-bottom: 7px;
-    }
-
-    .panel-caption {
-        color: #8FA0BA;
-        font-size: .84rem;
-        line-height: 1.6;
-    }
-
-    .status-pill {
-        display: inline-block;
-        border-radius: 999px;
-        padding: 5px 10px;
-        font-size: .73rem;
-        font-weight: 700;
-        background: #17263A;
-        color: #91E8FF;
-        border: 1px solid #2B4A60;
-    }
-
-    .divider {
-        border: 0;
-        border-top: 1px solid #202D43;
-        margin: 20px 0;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 35px 20px;
-        border: 1px dashed #30415C;
-        border-radius: 17px;
-        background: rgba(14, 22, 37, .65);
-    }
-
-    .empty-icon {
-        font-size: 2rem;
-        margin-bottom: 10px;
-    }
-
-    .empty-title {
-        color: #F1F5FF;
-        font-weight: 700;
-        font-size: 1rem;
-    }
-
-    .empty-text {
-        color: #91A0BA;
-        font-size: .85rem;
-        margin-top: 7px;
-    }
-
-    .stButton > button,
-    .stFormSubmitButton > button {
-        border-radius: 11px;
-        border: 1px solid #30425B;
-        background: #152239;
-        color: #EAF5FF;
-        font-weight: 600;
-        min-height: 42px;
-        transition: all .2s ease;
-    }
-
-    .stButton > button:hover,
-    .stFormSubmitButton > button:hover {
-        border-color: var(--cyan);
-        color: var(--cyan);
-        background: #172941;
-    }
-
-    .stButton > button[kind="primary"],
-    .stFormSubmitButton > button[kind="primary"] {
-        color: #07121C;
-        border: none;
-        background: linear-gradient(100deg, #38E8FF, #86B8FF 60%, #A78BFA);
-        font-weight: 800;
-        box-shadow: 0 5px 22px rgba(56,232,255,.13);
-    }
-
-    .stButton > button[kind="primary"]:hover,
-    .stFormSubmitButton > button[kind="primary"]:hover {
-        color: #07121C;
-        filter: brightness(1.08);
-        box-shadow: 0 5px 28px rgba(56,232,255,.24);
-    }
-
-    .stTextInput input,
-    .stTextArea textarea,
-    .stDateInput input,
-    .stSelectbox div[data-baseweb="select"] > div,
-    .stFileUploader section {
-        background: #0B1423 !important;
-        color: #EAF1FF !important;
-        border-color: #2A3B54 !important;
-        border-radius: 11px !important;
-    }
-
-    .stTextInput input:focus,
-    .stTextArea textarea:focus {
-        border-color: #38E8FF !important;
-        box-shadow: 0 0 0 1px rgba(56,232,255,.2) !important;
-    }
-
-    [data-testid="stFileUploader"] {
-        border: 1px dashed #344A67;
-        border-radius: 15px;
-        background: rgba(11,20,35,.5);
-        padding: 8px;
-    }
-
-    [data-testid="stProgressBar"] > div > div {
-        background: linear-gradient(90deg, #38E8FF, #A78BFA, #FB70C8);
-    }
-
-    [data-testid="stAlert"] {
-        border-radius: 12px;
-    }
-
-    [data-testid="stMetric"] {
-        background: #101A2A;
-        border: 1px solid #263750;
-        padding: 15px;
-        border-radius: 14px;
-    }
-
-    [data-testid="stMetricValue"] {
-        color: #38E8FF;
-    }
-
-    .footer {
-        color: #65758F;
-        font-size: .76rem;
-        text-align: center;
-        padding: 20px 0 8px;
-    }
-
-    #MainMenu, footer {
-        visibility: hidden;
-    }
-
-    @media (max-width: 700px) {
-        .hero { padding: 22px; }
-        .metric-card { min-height: 125px; padding: 15px; }
-        .metric-value { font-size: 1.7rem; }
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# --------------------- HEALTHCARE MOTION DESIGN LAYER ---------------------
-# Lightweight CSS-only motion: no animation libraries or extra dependencies.
-st.markdown(
-    """
-    <style>
-    :root {
-      --health-mint: #53F0C2;
-      --health-blue: #54C8FF;
-      --health-violet: #B39BFF;
-    }
-
-    /* Ambient clinical-tech glow */
-    .stApp {
-      background-image:
-        radial-gradient(ellipse at 12% 16%, rgba(42, 205, 188, .10), transparent 31%),
-        radial-gradient(ellipse at 88% 28%, rgba(91, 111, 255, .11), transparent 30%),
-        radial-gradient(ellipse at 54% 100%, rgba(38, 181, 255, .06), transparent 38%),
-        linear-gradient(135deg, #070B14 0%, #0A1020 48%, #080D18 100%);
-      background-size: 140% 140%;
-      animation: cb-ambient 22s ease-in-out infinite alternate;
-    }
-
-    @keyframes cb-ambient {
-      0% { background-position: 0% 0%; }
-      100% { background-position: 100% 80%; }
-    }
-
-    /* Refined entrance motion for the workspace */
-    [data-testid="stMainBlockContainer"] {
-      animation: cb-enter .55s cubic-bezier(.2,.75,.25,1) both;
-    }
-    @keyframes cb-enter {
-      from { opacity: 0; transform: translateY(9px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Glassy, premium dashboard surfaces */
-    .metric-card, .hero, .empty-state {
-      position: relative;
-      overflow: hidden;
-      isolation: isolate;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-    .metric-card {
-      border-color: rgba(91, 132, 171, .25) !important;
-      background: linear-gradient(145deg, rgba(17, 29, 48, .94), rgba(10, 17, 30, .91)) !important;
-      box-shadow: 0 10px 32px rgba(0,0,0,.13), inset 0 1px 0 rgba(255,255,255,.025);
-      transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease;
-    }
-    .metric-card::before {
-      content: ""; position: absolute; inset: 0 auto 0 0; width: 2px;
-      background: linear-gradient(180deg, var(--health-mint), var(--health-blue), transparent);
-      opacity: .7; z-index: -1;
-    }
-    .metric-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(83, 240, 194, .55) !important;
-      box-shadow: 0 16px 36px rgba(0,0,0,.25), 0 0 22px rgba(83,240,194,.055);
-    }
-    .metric-icon {
-      border-radius: 13px;
-      background: rgba(83, 240, 194, .065);
-      box-shadow: 0 0 22px rgba(83, 240, 194, .045);
-    }
-    .hero {
-      border: 1px solid rgba(92, 145, 179, .27) !important;
-      background: linear-gradient(115deg, rgba(15, 31, 48, .98), rgba(15, 20, 41, .94) 58%, rgba(28, 24, 54, .88)) !important;
-      box-shadow: 0 20px 55px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.035);
-    }
-    .hero::after {
-      content: ""; pointer-events: none; position: absolute;
-      right: -42px; top: -48px; width: 300px; height: 220px; border-radius: 50%;
-      background: radial-gradient(ellipse, rgba(61, 219, 208, .12), rgba(98, 103, 255, .06) 44%, transparent 72%);
-      filter: blur(5px); z-index: -1; animation: cb-orb 8s ease-in-out infinite alternate;
-    }
-    @keyframes cb-orb { from { transform: translate3d(0,0,0) scale(.94); } to { transform: translate3d(-18px,13px,0) scale(1.08); } }
-
-    /* ECG-inspired accent on the hero: decorative, not a live health signal */
-    .hero::before {
-      content: ""; pointer-events: none; position: absolute; right: 18px; bottom: 15px;
-      width: min(38%, 300px); height: 42px; opacity: .22;
-      background-repeat: no-repeat; background-position: center; background-size: 100% 100%;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 48'%3E%3Cpath d='M0 26 H72 L88 26 L100 15 L113 39 L129 4 L145 32 L157 26 H205 L218 26 L229 18 L241 34 L253 26 H320' fill='none' stroke='%2353F0C2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    }
-
-    /* Buttons feel responsive without overdoing motion */
-    .stButton > button, .stDownloadButton > button {
-      transition: transform .16s ease, box-shadow .2s ease, border-color .2s ease !important;
-      border-radius: 12px !important;
-    }
-    .stButton > button:hover, .stDownloadButton > button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 22px rgba(53, 205, 211, .11);
-    }
-    .stButton > button:active, .stDownloadButton > button:active { transform: translateY(0) scale(.99); }
-
-    /* Inputs get a crisp focus ring for accessibility */
-    [data-testid="stTextInput"] input:focus,
-    [data-testid="stTextArea"] textarea:focus,
-    [data-testid="stDateInput"] input:focus {
-      border-color: rgba(83,240,194,.75) !important;
-      box-shadow: 0 0 0 2px rgba(83,240,194,.12) !important;
-    }
-
-    /* Sidebar brand glow and gentle navigation feedback */
-    .brand-mark { box-shadow: 0 0 24px rgba(83,240,194,.20); }
-    [data-testid="stSidebar"] [role="radiogroup"] label {
-      transition: background .18s ease, border-color .18s ease, transform .18s ease;
-      border-radius: 11px;
-    }
-    [data-testid="stSidebar"] [role="radiogroup"] label:hover { transform: translateX(3px); }
-
-    /* Reduced-motion support respects a user's operating-system preference */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: .01ms !important; animation-iteration-count: 1 !important;
-        scroll-behavior: auto !important; transition-duration: .01ms !important;
-      }
-    }
-    @media (max-width: 700px) {
-      .hero::before { width: 34%; opacity: .12; }
-      .hero::after { width: 180px; height: 160px; }
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.markdown(
-    """
-    <style>
-    /* full-width buttons without version-specific arguments */
-    .stButton > button, .stFormSubmitButton > button, .stDownloadButton > button { width: 100%; }
-    .chip { display:inline-block; border-radius:999px; padding:4px 11px; font-size:.74rem; font-weight:700; border:1px solid; }
-    .chip-Taken { color:#45E6A5; background:rgba(69,230,165,.10); border-color:rgba(69,230,165,.35); }
-    .chip-Missed { color:#FB70C8; background:rgba(251,112,200,.10); border-color:rgba(251,112,200,.35); }
-    .chip-Skipped { color:#A78BFA; background:rgba(167,139,250,.10); border-color:rgba(167,139,250,.35); }
-    .chip-Pending { color:#38E8FF; background:rgba(56,232,255,.08); border-color:rgba(56,232,255,.30); }
-    .dose-time { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.25rem; color:#F1F5FF; }
-    .dose-name { font-weight:700; font-size:1.05rem; color:#F1F5FF; }
-    .dose-meta { color:#91A0BA; font-size:.9rem; }
+    @media (max-width:700px){.hero{padding:22px;}.metric-value{font-size:1.7rem;}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
     </style>
     """,
     unsafe_allow_html=True,
@@ -646,17 +259,44 @@ def show_flash():
         getattr(st, item[0])(item[1])
 
 
+def ring_html(pct, caption):
+    p = 0 if pct is None else max(0, min(100, int(pct)))
+    txt = "–" if pct is None else f"{p}%"
+    return (f'<div class="panel" style="text-align:center"><div class="ring" style="--p:{p}">'
+            f'<div class="ring-in"><b>{txt}</b><span>{safe_text(caption)}</span></div></div></div>')
+
+
+def bar_row(label, count, total, color):
+    w = round(100 * count / total) if total else 0
+    return (f'<div class="bar-row"><div class="bar-label">{safe_text(label)}</div>'
+            f'<div class="bar-track"><div class="bar-fill" style="width:{w}%;background:{color}"></div></div>'
+            f'<div class="bar-val">{count}</div></div>')
+
+
+def week_strip():
+    base = core.now()
+    cells = ""
+    for off in range(-2, 3):
+        d = base + timedelta(days=off)
+        cls = "day on" if off == 0 else "day"
+        cells += f'<div class="{cls}">{d.strftime("%a")}<b>{d.day:02d}</b></div>'
+    st.markdown(f'<div class="panel"><div class="panel-title" style="text-align:center">{base.strftime("%B %Y")}</div>'
+                f'<div class="week">{cells}</div></div>', unsafe_allow_html=True)
+
+
 def adherence_panel(patient_id, days=7):
     s = core.adherence_stats(patient_id, days)
-    c1, c2, c3, c4 = st.columns(4, gap="medium")
-    c1.metric("Taken", s["Taken"])
-    c2.metric("Skipped", s["Skipped"])
-    c3.metric("Missed", s["Missed"])
-    c4.metric("Adherence", f"{s['pct']}%" if s["pct"] is not None else "–")
+    total = s["Taken"] + s["Skipped"] + s["Missed"]
+    c1, c2 = st.columns([1, 2], gap="medium")
+    c1.markdown(ring_html(s["pct"], "adherence"), unsafe_allow_html=True)
+    bars = (bar_row("Taken", s["Taken"], total, "#40E0D0") + bar_row("Skipped", s["Skipped"], total, "#F2B64B")
+            + bar_row("Missed", s["Missed"], total, "#FF6F61"))
+    c2.markdown(f'<div class="panel"><div class="panel-title">Dose summary · last {days} days</div>{bars}</div>',
+                unsafe_allow_html=True)
     breakdown = core.daily_breakdown(patient_id, days)
     if any(r["Taken"] or r["Skipped"] or r["Missed"] for r in breakdown):
         df = pd.DataFrame(breakdown).set_index("Day")
-        st.bar_chart(df, color=["#45E6A5", "#A78BFA", "#FB70C8"])
+        st.bar_chart(df, color=["#40E0D0", "#F2B64B", "#FF6F61"])
     else:
         st.caption("No recorded doses yet.")
 
@@ -737,7 +377,7 @@ with st.sidebar:
         """
         <div style="padding: 0 0 24px;">
             <div><span class="brand-mark">✦</span><span class="brand">Nexus<span>Agent</span></span></div>
-            <div style="color:#7789A5;font-size:.75rem;margin:10px 0 0 4px;letter-spacing:1.6px;text-transform:uppercase;">
+            <div style="color:#8AA0B2;font-size:.75rem;margin:10px 0 0 4px;letter-spacing:1.6px;text-transform:uppercase;">
                 Prescription Reader Agent
             </div>
         </div>
@@ -785,7 +425,7 @@ with st.sidebar:
         f"""<div class="panel" style="padding:16px;"><div class="panel-title">✦ AI Status</div>
         <div class="panel-caption">Prescription vision</div>
         <div style="margin-top:12px;"><span class="status-pill">● {'Gemini configured' if gemini_ready else 'GEMINI_API_KEY missing'}</span></div></div>
-        <div style="font-size:.76rem;color:#72829D;line-height:1.7;"><b style="color:#B9C8E0;">Emergency?</b><br>
+        <div style="font-size:.76rem;color:#6B8294;line-height:1.7;"><b style="color:#0F3D3E;">Emergency?</b><br>
         This app is not an emergency service. Call <b>112</b> for urgent help.</div>""",
         unsafe_allow_html=True,
     )
@@ -830,10 +470,10 @@ def doctor_dashboard():
                 "The agent reads prescriptions and tracks every dose. You approve, and you decide about any change.")
     ov = core.doctor_overview(user["id"])
     c1, c2, c3, c4 = st.columns(4, gap="medium")
-    with c1: render_metric("Linked patients", ov["patients"], "☺", "#38E8FF", "Patients who shared their code")
-    with c2: render_metric("Awaiting approval", ov["pending"], "◷", "#FB70C8", "Nothing runs until you approve")
-    with c3: render_metric("Medicines tracked", ov["active_meds"], "✚", "#45E6A5", "With upcoming doses")
-    with c4: render_metric("Open alerts", ov["alerts"], "!", "#A78BFA", "Missed / skipped doses, course ends")
+    with c1: render_metric("Linked patients", ov["patients"], "☺", "#1FB8A8", "Patients who shared their code")
+    with c2: render_metric("Awaiting approval", ov["pending"], "◷", "#FF6F61", "Nothing runs until you approve")
+    with c3: render_metric("Medicines tracked", ov["active_meds"], "✚", "#2F80ED", "With upcoming doses")
+    with c4: render_metric("Open alerts", ov["alerts"], "!", "#F2B64B", "Missed / skipped doses, course ends")
 
     st.markdown('<div class="section-title">Agent check</div>', unsafe_allow_html=True)
     res = st.session_state.get("last_agent_result", {})
@@ -1059,6 +699,7 @@ def doctor_patients():
 def patient_today():
     show_header("TODAY", "Your medicines, <span class='hero-glow'>one tap at a time.</span>",
                 "Tap when you take a dose. Your doctor is told only if doses are missed.")
+    week_strip()
     for p in core.patient_prescriptions(user["id"]):
         if p["status"] == "needs_review":
             st.info(f"Waiting for Dr {p['doctor_name']} to verify your prescription. Reminders start after approval.")

@@ -337,22 +337,9 @@ def explain_medicine(core, med, report, lang, api_key, model):
 
 # ------------------------------------------------------------------ streak (plain code)
 def streak_days(core, patient_id):
-    now_dt = core.now()
-    today = now_dt.date().isoformat()
-    with core.db() as c:
-        rows = c.execute(
-            "SELECT substr(scheduled_at,1,10) AS day, SUM(status='Taken') AS t, "
-            "SUM(status IN ('Missed','Skipped')) AS bad FROM doses WHERE patient_id=? AND scheduled_at<=? "
-            "GROUP BY day ORDER BY day DESC", (patient_id, core.iso(now_dt))).fetchall()
-    streak = 0
-    for r in rows:
-        if r["bad"]:
-            break
-        if r["t"]:
-            streak += 1
-        elif r["day"] != today:
-            break
-    return streak
+    """Kept for compatibility. The streak logic now lives in nexcare_plus (current / best / badges)."""
+    import nexcare_plus  # imported here to avoid a circular import
+    return nexcare_plus.current_streak(core, patient_id)
 
 
 # ------------------------------------------------------------------ theme + animations

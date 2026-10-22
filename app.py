@@ -23,7 +23,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-GEMINI_MODEL_DEFAULT = "gemini-2.5-flash"
+GEMINI_MODEL_DEFAULT = "gemini-3.5-flash"
 
 
 def get_secret(name, default=""):

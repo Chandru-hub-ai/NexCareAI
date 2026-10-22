@@ -9,6 +9,7 @@ import pandas as pd
 import streamlit as st
 
 import agent_core as core
+import nexcare  # NexCare add-on: report explainer, languages, dark mode, motivation
 
 # =========================================================
 # NEXUSAGENT — PRESCRIPTION READER AGENT (CareBridge format)
@@ -39,9 +40,14 @@ def get_secret(name, default=""):
 core.TZ_NAME = get_secret("APP_TIMEZONE", core.TZ_NAME) or core.TZ_NAME
 
 
+def ai_cfg():
+    return get_secret("GEMINI_API_KEY"), get_secret("GEMINI_MODEL", GEMINI_MODEL_DEFAULT) or GEMINI_MODEL_DEFAULT
+
+
 @st.cache_resource
 def _init_db_once():
     core.init_db()
+    nexcare.init_tables(core)
     return True
 
 
@@ -195,8 +201,9 @@ TA = {
 
 
 def tr(key):
-    table = TA if st.session_state.get("lang") == "தமிழ்" else EN
-    return table.get(key, key)
+    lang = st.session_state.get("lang", "English")
+    base = TA if lang == "தமிழ்" else EN
+    return nexcare.UI.get(lang, {}).get(key) or base.get(key, key)
 
 
 def safe_text(value):
@@ -369,7 +376,7 @@ is_doctor = user["role"] == "Doctor"
 # --------------------- SIDEBAR --------------------------
 
 DOCTOR_PAGES = ["Dashboard", "Prescriptions", "Patients", "Agent Activity", "About"]
-PATIENT_PAGES = ["Today", "Upload Prescription", "My Medicines", "My Adherence", "Link Doctor", "Agent Activity", "About"]
+PATIENT_PAGES = ["Today", "Upload Prescription", "Report Explainer", "My Medicines", "My Adherence", "Link Doctor", "Agent Activity", "About"]
 pages = DOCTOR_PAGES if is_doctor else PATIENT_PAGES
 
 with st.sidebar:
@@ -389,7 +396,8 @@ with st.sidebar:
     selected_page = st.radio("Navigation", pages, label_visibility="collapsed", key="nav_radio")
 
     if not is_doctor:
-        st.radio("Language / மொழி", ["English", "தமிழ்"], key="lang", horizontal=True)
+        st.selectbox("Language / மொழி", nexcare.LANGS, key="lang")
+    st.toggle("🌙 Dark mode", key="dark_mode")
 
     notes = core.get_notifications(user["id"])
     unread = sum(1 for n in notes if not n["is_read"])
@@ -431,6 +439,7 @@ with st.sidebar:
     )
 
 page = selected_page
+nexcare.inject_theme(st.session_state.get("dark_mode", False))
 show_flash()
 
 
@@ -699,6 +708,7 @@ def doctor_patients():
 def patient_today():
     show_header("TODAY", "Your medicines, <span class='hero-glow'>one tap at a time.</span>",
                 "Tap when you take a dose. Your doctor is told only if doses are missed.")
+    nexcare.today_extras(user, core, tr, st.session_state.get("lang", "English"), *ai_cfg())
     week_strip()
     for p in core.patient_prescriptions(user["id"]):
         if p["status"] == "needs_review":
@@ -739,6 +749,8 @@ def patient_today():
                     if action:
                         try:
                             core.log_dose_action(d["id"], user["id"], action)
+                            if action == "take":
+                                st.session_state["_celebrate"] = True
                         except ValueError as exc:
                             flash("error", str(exc))
                         st.rerun()
@@ -862,9 +874,13 @@ def about():
 """)
 
 
+def patient_reports():
+    nexcare.report_page(user, core, show_header, st.session_state.get("lang", "English"), *ai_cfg())
+
+
 PAGE_FUNCS = {
     "Dashboard": doctor_dashboard, "Prescriptions": doctor_prescriptions, "Patients": doctor_patients,
-    "Today": patient_today, "Upload Prescription": patient_upload, "My Medicines": patient_medicines,
+    "Today": patient_today, "Upload Prescription": patient_upload, "Report Explainer": patient_reports, "My Medicines": patient_medicines,
     "My Adherence": patient_adherence, "Link Doctor": patient_link,
     "Agent Activity": agent_activity, "About": about,
 }

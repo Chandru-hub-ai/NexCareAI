@@ -10,6 +10,7 @@ import streamlit as st
 
 import agent_core as core
 import nexcare  # NexCare add-on: report explainer, languages, dark mode, motivation
+import nexcare_plus as plus  # course-complete message, diagnoses panel, switch doctor, daily streak
 
 # =========================================================
 # NEXUSAGENT — PRESCRIPTION READER AGENT (CareBridge format)
@@ -48,6 +49,7 @@ def ai_cfg():
 def _init_db_once():
     core.init_db()
     nexcare.init_tables(core)
+    plus.init_tables(core)
     return True
 
 
@@ -370,13 +372,17 @@ try:
     st.session_state["last_agent_result"] = core.agent_check()
 except Exception as exc:  # never block the UI because of the agent
     st.session_state["last_agent_result"] = {"error": str(exc)}
+try:
+    plus.maintenance(core)  # finishes doctor-to-doctor treatment transfers
+except Exception:
+    pass
 
 is_doctor = user["role"] == "Doctor"
 
 # --------------------- SIDEBAR --------------------------
 
-DOCTOR_PAGES = ["Dashboard", "Prescriptions", "Patients", "Agent Activity", "About"]
-PATIENT_PAGES = ["Today", "Upload Prescription", "Report Explainer", "My Medicines", "My Adherence", "Link Doctor", "Agent Activity", "About"]
+DOCTOR_PAGES = ["Dashboard", "Prescriptions", "Patients", "Patient History", "Agent Activity", "About"]
+PATIENT_PAGES = ["Today", "Upload Prescription", "Report Explainer", "My Medicines", "My Adherence", "Health History", "Switch Doctor", "Link Doctor", "Agent Activity", "About"]
 pages = DOCTOR_PAGES if is_doctor else PATIENT_PAGES
 
 with st.sidebar:
@@ -440,6 +446,7 @@ with st.sidebar:
 
 page = selected_page
 nexcare.inject_theme(st.session_state.get("dark_mode", False))
+plus.inject_css(st.session_state.get("dark_mode", False))
 show_flash()
 
 
@@ -500,12 +507,17 @@ def doctor_dashboard():
     for a in alerts:
         with st.container(border=True):
             left, right = st.columns([4, 1])
-            left.markdown(f"**{'⚠ Adherence' if a['kind'] == 'adherence' else '⏳ Course ending'}** · {safe_text(a['patient_name'])}")
+            kind_label = {"adherence": "⚠ Adherence", "course_end": "⏳ Course ending",
+                          "course_feedback": "💬 Course finished"}.get(a["kind"], "🔔 Alert")
+            left.markdown(f"**{kind_label}** · {safe_text(a['patient_name'])}")
             left.write(a["message"])
             left.caption(fmt_dt(a["created_at"]))
             if right.button("Mark seen", key=f"alert_{a['id']}"):
                 core.mark_alert_read(a["id"], user["id"])
                 st.rerun()
+
+    plus.doctor_messages_panel(user, core)
+    plus.doctor_dx_panel(user, core, *ai_cfg())
 
     st.markdown('<div class="section-title">Awaiting your approval</div>', unsafe_allow_html=True)
     pend = core.pending_prescriptions(user["id"])
@@ -540,6 +552,8 @@ def review_prescription(rx):
         st.warning("AI could not read this prescription clearly. Enter the medicines manually from the original.")
     if rx["source"] == "sample":
         st.info("SAMPLE DATA: fake demo prescription. It was not read from an image.")
+    if rx["source"] == "transfer":
+        st.info("CARRIED OVER from the patient's previous doctor. Check every field. Nothing is scheduled until you approve.")
 
     left, right = st.columns([1, 2], gap="large")
     with left:
@@ -708,7 +722,10 @@ def doctor_patients():
 def patient_today():
     show_header("TODAY", "Your medicines, <span class='hero-glow'>one tap at a time.</span>",
                 "Tap when you take a dose. Your doctor is told only if doses are missed.")
-    nexcare.today_extras(user, core, tr, st.session_state.get("lang", "English"), *ai_cfg())
+    lang = st.session_state.get("lang", "English")
+    nexcare.today_extras(user, core, tr, lang, *ai_cfg())
+    plus.daily_card(user, core, lang)
+    plus.course_cards(user, core, compact=True)
     week_strip()
     for p in core.patient_prescriptions(user["id"]):
         if p["status"] == "needs_review":
@@ -787,6 +804,7 @@ def patient_upload():
 def patient_medicines():
     show_header("MEDICINES", "What your doctor <span class='hero-glow'>approved.</span>",
                 "Only doctor-approved medicines appear here.")
+    plus.course_cards(user, core)
     for p in core.patient_prescriptions(user["id"]):
         label = {"needs_review": "Waiting for doctor", "approved": "Approved", "rejected": "Rejected"}[p["status"]]
         st.markdown(f"**Prescription #{p['id']}** · Dr {safe_text(p['doctor_name'])} · {fmt_dt(p['created_at'])} · `{label}`")
@@ -870,6 +888,8 @@ def about():
 - Reminders appear in the app. Push / SMS needs a separate provider.
 - The agent check runs when the app opens (or on the button). Production would use a scheduler.
 - Data is stored in a local SQLite file. Use fake data only.
+- The "possible diagnoses" panel lists what a patient's tablets are commonly prescribed for. It is decision support for the doctor, not a diagnosis. The doctor confirms.
+- When a patient moves to a new doctor, history is shared only with the patient's consent. The new doctor can carry the medicines over, but must still review and approve them.
 - Production would need Indian data-protection compliance (DPDP Act), real hosting security and audit.
 """)
 
@@ -878,8 +898,21 @@ def patient_reports():
     nexcare.report_page(user, core, show_header, st.session_state.get("lang", "English"), *ai_cfg())
 
 
+def patient_history():
+    plus.history_page(user, core, show_header, st.session_state.get("lang", "English"), *ai_cfg())
+
+
+def patient_switch():
+    plus.switch_page(user, core, show_header)
+
+
+def doctor_history():
+    plus.doctor_history_page(user, core, show_header, *ai_cfg())
+
+
 PAGE_FUNCS = {
     "Dashboard": doctor_dashboard, "Prescriptions": doctor_prescriptions, "Patients": doctor_patients,
+    "Patient History": doctor_history, "Health History": patient_history, "Switch Doctor": patient_switch,
     "Today": patient_today, "Upload Prescription": patient_upload, "Report Explainer": patient_reports, "My Medicines": patient_medicines,
     "My Adherence": patient_adherence, "Link Doctor": patient_link,
     "Agent Activity": agent_activity, "About": about,
